@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VelvetVault - Light Theme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #fbf7f4;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-rose: rgba(212, 165, 165, 0.35);
+            --text-main: #2d2327;
+            --text-muted: #7a686e;
+            --accent-crimson: #9e2a4b;
+            --accent-rose: #d4a5a5;
+            --gold-glow: #b38f42;
+            --success-green: #27ae60;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-cream); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; }
+
+        h1, h2, h3, .serif-font { font-family: 'Playfair Display', serif; }
+
+        header {
+            background: rgba(251, 247, 244, 0.95);
+            border-bottom: 1px solid var(--border-rose);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        .brand { font-size: 1.25rem; font-weight: 700; color: var(--accent-crimson); letter-spacing: 1px; }
+        .room-badge { background: rgba(212, 165, 165, 0.15); border: 1px solid var(--border-rose); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--accent-crimson); }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-rose);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 30px rgba(158, 42, 75, 0.06);
+        }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { background: #fff; border: 1px solid var(--border-rose); border-radius: 12px; padding: 15px; text-align: center; }
+        .stat-box h4 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box p { font-size: 1.4rem; font-weight: 700; color: var(--accent-crimson); }
+
+        input, select, textarea {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border-rose);
+            color: var(--text-main);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-crimson); }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-crimson), #781c36);
+            color: #fff;
+            border: 1px solid var(--border-rose);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-gold { background: linear-gradient(135deg, #d4af37, #997521); color: #fff; border: none; }
+
+        .grid-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .option-card {
+            background: rgba(212, 165, 165, 0.1);
+            border: 1px solid var(--border-rose);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-card:hover { background: rgba(212, 165, 165, 0.2); }
+        .option-card h5 { color: var(--accent-crimson); font-size: 0.95rem; margin-bottom: 5px; }
+        .option-card span { color: var(--gold-glow); font-weight: 700; font-size: 1.1rem; }
+
+        .vault-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .vault-item {
+            background: #fff;
+            border: 1px solid var(--border-rose);
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+        .vault-img-container { width: 100%; height: 150px; position: relative; overflow: hidden; background: #eee; }
+        .vault-img { width: 100%; height: 100%; object-fit: cover; transition: filter 0.4s ease; }
+        .vault-img.locked { filter: blur(15px) brightness(0.8); }
+        .vault-lock-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(251, 247, 244, 0.5); backdrop-filter: blur(2px);
+        }
+        .vault-info { padding: 12px; }
+        .vault-info p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+
+        .chat-container { display: flex; flex-direction: column; height: 400px; }
+        .chat-messages {
+            flex: 1; overflow-y: auto; background: #fff;
+            border: 1px solid var(--border-rose); border-radius: 10px;
+            padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; }
+        .chat-msg.sub { background: rgba(212, 165, 165, 0.15); border: 1px solid var(--border-rose); align-self: flex-start; color: var(--text-main); }
+        .chat-msg.domme { background: var(--accent-crimson); align-self: flex-end; color: #fff; }
+        .chat-msg small { display: block; font-size: 0.7rem; color: inherit; opacity: 0.8; margin-top: 4px; text-align: right; }
+
+        .task-card { background: #fff; border: 1px solid var(--border-rose); border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .task-timer { font-size: 1.1rem; font-weight: 700; color: var(--accent-crimson); margin: 5px 0; }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(251, 247, 244, 0.98);
+            border-top: 1px solid var(--border-rose);
+            display: flex; justify-content: space-around;
+            padding: 10px 0; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; text-align: center; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--accent-crimson); font-weight: 600; }
+        .nav-item span { display: block; font-size: 1.1rem; margin-bottom: 2px; }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 35, 39, 0.5); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px; backdrop-filter: blur(4px);
+        }
+        .modal-card { background: var(--bg-cream); border: 1px solid var(--border-rose); padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="setupModal" class="modal">
+        <div class="modal-card">
+            <h2 class="serif-font" style="color: var(--accent-crimson); margin-bottom: 10px;">VelvetVault</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Apna role chunein aur room enter karein.</p>
+            <select id="userRole">
+                <option value="sub">Sub / Servant</option>
+                <option value="domme">Domme / Queen</option>
+            </select>
+            <input type="text" id="roomInput" placeholder="Room Code (e.g. VELVET-01)" value="VELVET-77">
+            <button class="btn btn-gold" onclick="initApp()">Enter Vault</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="brand serif-font">VelvetVault</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button onclick="toggleRole()" id="roleSwitchBtn" style="background: rgba(158,42,75,0.1); border: 1px solid var(--border-rose); color: var(--accent-crimson); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; cursor: pointer;">Role: Sub ⇄</button>
+            <div class="room-badge" id="displayRoom">Room: --</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- TAB 1: LEDGER -->
+        <div id="tab-ledger" class="tab-content active">
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <h4>Total Balance</h4>
+                    <p id="totalDebt">Rs. 250</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Paid Tributes</h4>
+                    <p id="totalPaid" style="color: var(--success-green);">Rs. 0</p>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 class="serif-font" style="margin-bottom: 15px; color: var(--accent-crimson);">Submit Tribute / Payment</h3>
+                <input type="number" id="payAmount" placeholder="Amount (PKR) e.g. 100">
+                <select id="paymentMethod">
+                    <option value="JazzCash">JazzCash</option>
+                    <option value="EasyPaisa">EasyPaisa</option>
+                    <option value="SadaPay">SadaPay</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+                <input type="text" id="txnId" placeholder="Transaction ID / Reference Number">
+                <button class="btn" onclick="submitPayment()">Send Payment Proof</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: GAMES -->
+        <div id="tab-games" class="tab-content">
+            <div class="glass-card">
+                <h3 class="serif-font" style="margin-bottom: 5px; color: var(--accent-crimson);">Quick Drains (Rs. 33 - 100)</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Fauri tribute add karein</p>
+                <div class="grid-options">
+                    <div class="option-card" onclick="triggerTribute(33, 'Sweet Kiss')"><h5>Sweet Kiss</h5><span>Rs. 33</span></div>
+                    <div class="option-card" onclick="triggerTribute(50, 'Coffee Sip')"><h5>Coffee Sip</h5><span>Rs. 50</span></div>
+                    <div class="option-card" onclick="triggerTribute(75, 'Silk Tease')"><h5>Silk Tease</h5><span>Rs. 75</span></div>
+                    <div class="option-card" onclick="triggerTribute(100, 'Queen Tax')"><h5>Queen Tax</h5><span>Rs. 100</span></div>
+                </div>
+            </div>
+
+            <!-- 2-PLAYER ONLINE GAMES -->
+            <div class="glass-card" style="text-align: center;">
+                <h3 class="serif-font" style="margin-bottom: 5px; color: var(--accent-crimson);">Head-to-Head Coin Duel</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Aap aur Domme aik sath khelein (Rs. 50 stake)</p>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <button class="btn" onclick="playCoinDuel('Heads')">Choose Heads</button>
+                    <button class="btn btn-gold" onclick="playCoinDuel('Tails')">Choose Tails</button>
+                </div>
+                <div id="coinResult" style="font-weight: 700; color: var(--accent-crimson); font-size: 1rem;"></div>
+            </div>
+
+            <div class="glass-card" style="text-align: center;">
+                <h3 class="serif-font" style="margin-bottom: 5px; color: var(--accent-crimson);">Velvet Wheel (Rare up to 250)</h3>
+                <button class="btn btn-gold" onclick="spinWheel()">Spin & Drain</button>
+                <div id="wheelResult" style="margin-top: 12px; font-weight: 700; color: var(--accent-crimson); font-size: 1.1rem;"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: VAULT -->
+        <div id="tab-vault" class="tab-content">
+            <div class="glass-card">
+                <h3 class="serif-font" style="margin-bottom: 5px; color: var(--accent-crimson);">Her Secret Vault</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Target amount pay karne par pictures unlock hongi.</p>
+                <div id="dommeUploadBox" style="display:none; margin-bottom: 20px; padding: 15px; background: rgba(212,165,165,0.1); border-radius: 10px; border: 1px dashed var(--border-rose);">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--accent-crimson);">Add Reward Picture</h4>
+                    <input type="text" id="vaultImgUrl" placeholder="Image URL">
+                    <input type="number" id="vaultPrice" placeholder="Unlock Price in PKR (e.g. 150)">
+                    <button class="btn" onclick="addVaultItem()">Publish Reward</button>
+                </div>
+                <div class="vault-grid" id="vaultGridContainer"></div>
+            </div>
+        </div>
+
+        <!-- TAB 4: CHAT -->
+        <div id="tab-chat" class="tab-content">
+            <div class="glass-card chat-container">
+                <h3 class="serif-font" style="margin-bottom: 10px; color: var(--accent-crimson);">Direct Chat</h3>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-msg domme">
+                        <span>Room connected. Awaiting obedience...</span>
+                        <small>System</small>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: auto;">
+                    <input type="text" id="chatInput" placeholder="Type message..." style="margin-bottom:0;" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                    <button class="btn btn-gold" style="width: 80px; margin-bottom:0;" onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: TASKS -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 class="serif-font" style="color: var(--accent-crimson);">Rules & Escalating Tasks</h3>
+                    <button class="btn btn-gold" id="addTaskBtn" style="display:none; width: auto; padding: 6px 12px; font-size: 0.8rem;" onclick="addNewTaskModal()">+ Add Task</button>
+                </div>
+                <div id="taskListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('ledger', this)"><span>📊</span>Ledger</button>
+        <button class="nav-item" onclick="switchTab('games', this)"><span>🎲</span>Drain</button>
+        <button class="nav-item" onclick="switchTab('vault', this)"><span>🔒</span>Vault</button>
+        <button class="nav-item" onclick="switchTab('chat', this)"><span>💬</span>Chat</button>
+        <button class="nav-item" onclick="switchTab('tasks', this)"><span>📜</span>Tasks</button>
+    </nav>
+
+    <script>
+        let appState = {
+            role: 'sub',
+            room: 'VELVET-77',
+            totalDebt: 250,
+            totalPaid: 0,
+            vault: [
+                { id: 1, url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400', price: 100, unlocked: false },
+                { id: 2, url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400', price: 200, unlocked: false }
+            ],
+            tasks: [
+                { id: 1, title: 'Morning Kneeling Check-in', amount: 50, timeLeft: 1800, totalSeconds: 1800, completed: false }
+            ]
+        };
+
+        function initApp() {
+            appState.role = document.getElementById('userRole').value;
+            appState.room = document.getElementById('roomInput').value || 'VELVET-77';
+            document.getElementById('displayRoom').innerText = `Room: ${appState.room}`;
+            document.getElementById('setupModal').style.display = 'none';
+            updateDommeControls();
+            renderAll();
+        }
+
+        function toggleRole() {
+            appState.role = appState.role === 'sub' ? 'domme' : 'sub';
+            document.getElementById('roleSwitchBtn').innerText = `Role: ${appState.role === 'sub' ? 'Sub' : 'Domme'} ⇄`;
+            updateDommeControls();
+            renderAll();
+        }
+
+        function updateDommeControls() {
+            if(appState.role === 'domme') {
+                document.getElementById('dommeUploadBox').style.display = 'block';
+                document.getElementById('addTaskBtn').style.display = 'block';
+            } else {
+                document.getElementById('dommeUploadBox').style.display = 'none';
+                document.getElementById('addTaskBtn').style.display = 'none';
+            }
+        }
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        function renderAll() {
+            document.getElementById('totalDebt').innerText = `Rs. ${appState.totalDebt}`;
+            document.getElementById('totalPaid').innerText = `Rs. ${appState.totalPaid}`;
+            
+            // Render Vault
+            let vaultHtml = '';
+            appState.vault.forEach(item => {
+                let canUnlock = appState.totalPaid >= item.price || item.unlocked;
+                vaultHtml += `
+                    <div class="vault-item">
+                        <div class="vault-img-container">
+                            <img src="${item.url}" class="vault-img ${canUnlock ? '' : 'locked'}">
+                            ${!canUnlock ? `<div class="vault-lock-overlay"><span>🔒 Unlock</span><small style="color:var(--gold-glow); font-size:0.75rem;">Rs. ${item.price}</small></div>` : ''}
+                        </div>
+                        <div class="vault-info">
+                            <p>Target: Rs. ${item.price}</p>
+                            ${!canUnlock ? `<button class="btn" style="padding:6px; font-size:0.8rem;" onclick="payForVault(${item.price})">Pay to Unlock</button>` : '<span style="color:var(--success-green); font-size:0.8rem; font-weight:600;">Unlocked ✅</span>'}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('vaultGridContainer').innerHTML = vaultHtml;
+
+            // Render Tasks
+            let taskHtml = '';
+            appState.tasks.forEach(task => {
+                let mins = Math.floor(task.timeLeft / 60);
+                let secs = task.timeLeft % 60;
+                let timeStr = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                taskHtml += `
+                    <div class="task-card" style="opacity: ${task.completed ? 0.6 : 1}">
+                        <h4 style="color: var(--text-main); font-size: 1rem;">${task.title}</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Current Stake: <b style="color: var(--accent-crimson);">Rs. ${task.amount}</b></p>
+                        <div class="task-timer">⏳ Time Left: ${timeStr}</div>
+                        ${!task.completed ? `<button class="btn" style="padding:8px; font-size:0.85rem; background:var(--success-green);" onclick="completeTask(${task.id})">Complete Task ✓</button>` : '<span style="color:var(--success-green); font-weight:600; font-size:0.9rem;">Completed & Secured ✅</span>'}
+                    </div>
+                `;
+            });
+            document.getElementById('taskListContainer').innerHTML = taskHtml;
+        }
+
+        // Task Timer & Escalating Loop Engine
+        setInterval(() => {
+            let changed = false;
+            appState.tasks.forEach(task => {
+                if(!task.completed) {
+                    task.timeLeft--;
+                    changed = true;
+                    if(task.timeLeft <= 0) {
+                        task.amount = Math.round(task.amount * 1.5);
+                        task.timeLeft = task.totalSeconds;
+                    }
+                }
+            });
+            if(changed) renderAll();
+        }, 1000);
+
+        function completeTask(id) {
+            let task = appState.tasks.find(t => t.id === id);
+            if(task) {
+                task.completed = true;
+                renderAll();
+                alert(`Task completed successfully! Amount locked at Rs. ${task.amount}.`);
+            }
+        }
+
+        function addNewTaskModal() {
+            let title = prompt('Task Name/Rule:', 'Posture Check');
+            let amt = parseInt(prompt('Initial Penalty PKR (e.g. 50):', '50'));
+            let mins = parseInt(prompt('Timer Duration in Minutes:', '30'));
+            if(title && amt && mins) {
+                appState.tasks.push({ id: Date.now(), title, amount: amt, timeLeft: mins * 60, totalSeconds: mins * 60, completed: false });
+                renderAll();
+            }
+        }
+
+        function triggerTribute(amount, name) {
+            appState.totalDebt += amount;
+            renderAll();
+            alert(`Rs. ${amount} (${name}) added to ledger!`);
+        }
+
+        function playCoinDuel(choice) {
+            const choices = ['Heads', 'Tails'];
+            const outcome = choices[Math.floor(Math.random() * choices.length)];
+            let stake = 50;
+            if(choice === outcome) {
+                document.getElementById('coinResult').innerText = `Result: ${outcome}! You Won! No drain. 🎉`;
+            } else {
+                appState.totalDebt += stake;
+                document.getElementById('coinResult').innerText = `Result: ${outcome}! Domme Won. Rs. ${stake} drained! 💔`;
+                renderAll();
+            }
+        }
+
+        function spinWheel() {
+            const amounts = [33, 50, 75, 100, 150, 200, 250];
+            const rand = amounts[Math.floor(Math.random() * amounts.length)];
+            appState.totalDebt += rand;
+            document.getElementById('wheelResult').innerText = `Velvet Spin: Rs. ${rand} drained!`;
+            renderAll();
+        }
+
+        function submitPayment() {
+            let amt = parseInt(document.getElementById('payAmount').value);
+            if(!amt || amt <= 0) { alert('Valid amount enter karein!'); return; }
+            appState.totalPaid += amt;
+            appState.totalDebt = Math.max(0, appState.totalDebt - amt);
+            appState.vault.forEach(item => { if(appState.totalPaid >= item.price) item.unlocked = true; });
+            renderAll();
+            document.getElementById('payAmount').value = '';
+            document.getElementById('txnId').value = '';
+            alert(`Payment of Rs. ${amt} accepted! Vault updated.`);
+        }
+
+        function payForVault(price) {
+            appState.totalPaid += price;
+            appState.vault.forEach(item => { if(item.price <= appState.totalPaid) item.unlocked = true; });
+            renderAll();
+            alert('Payment accepted! Reward unblurred.');
+        }
+
+        function addVaultItem() {
+            let url = document.getElementById('vaultImgUrl').value;
+            let price = parseInt(document.getElementById('vaultPrice').value);
+            if(!url || !price) { alert('URL aur Price enter karein!'); return; }
+            appState.vault.push({ id: Date.now(), url, price, unlocked: false });
+            document.getElementById('vaultImgUrl').value = '';
+            document.getElementById('vaultPrice').value = '';
+            renderAll();
+            alert('New reward picture added successfully!');
+        }
+
+        function sendChatMessage() {
+            let input = document.getElementById('chatInput');
+            let text = input.value.trim();
+            if(!text) return;
+            let msgBox = document.getElementById('chatMessages');
+            let senderClass = appState.role === 'domme' ? 'domme' : 'sub';
+            let senderName = appState.role === 'domme' ? 'Domme' : 'Sub';
+            msgBox.innerHTML += `
+                <div class="chat-msg ${senderClass}">
+                    <span>${text}</span>
+                    <small>${senderName} • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                </div>
+            `;
+            input.value = '';
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
